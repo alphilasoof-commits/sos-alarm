@@ -420,7 +420,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCqfz2Fr_v6udQyWxoJOV8TR0-_DYxJq04",
@@ -479,11 +479,23 @@
             statusMsg.textContent = 'Sending your love... 💌';
 
             try {
+                // 1. Schrijf alarm naar Firebase (app open detectie)
                 await set(ref(db, 'alarm'), {
                     active: true,
                     timestamp: Date.now(),
                     message: "I Love You Zuhair 💕"
                 });
+
+                // 2. Stuur push notificatie (ook als app gesloten is)
+                const subSnapshot = await get(ref(db, 'push_subscription'));
+                const subscription = subSnapshot.val();
+                if (subscription) {
+                    await fetch('/.netlify/functions/send-push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ subscription })
+                    });
+                }
 
                 statusBox.className = 'status success';
                 statusMsg.textContent = '💕 Your love was sent to Zuhair!';

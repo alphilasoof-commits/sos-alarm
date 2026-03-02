@@ -1,0 +1,8 @@
+{
+    "name": "sos-alarm",
+    "version": "1.0.0",
+    "description": "Love alarm system with push notifications",
+    "dependencies": {
+        "web-push": "^3.6.7"
+    }
+}
