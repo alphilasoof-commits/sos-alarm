@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Always Here For You 💕</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0d0008;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating hearts background */
+        .hearts-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .heart-float {
+            position: absolute;
+            bottom: -60px;
+            font-size: 1.2rem;
+            opacity: 0;
+            animation: float-up linear infinite;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.6) rotate(-10deg);
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-110vh) scale(1.1) rotate(10deg);
+            }
+        }
+
+        /* Glowing radial background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(200, 0, 80, 0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(180, 0, 120, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b9d, #ff2d55, #c8005a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .header .tagline {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Heart Button ── */
+        .heart-btn-wrapper {
+            position: relative;
+            width: 230px;
+            height: 230px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Pulsing glow rings */
+        .heart-btn-wrapper .glow-ring {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(220, 30, 80, 0.12);
+            animation: glow-pulse 2.5s ease-out infinite;
+        }
+
+        .heart-btn-wrapper .glow-ring:nth-child(1) {
+            width: 230px;
+            height: 230px;
+            animation-delay: 0s;
+        }
+
+        .heart-btn-wrapper .glow-ring:nth-child(2) {
+            width: 270px;
+            height: 270px;
+            animation-delay: 0.7s;
+        }
+
+        .heart-btn-wrapper .glow-ring:nth-child(3) {
+            width: 310px;
+            height: 310px;
+            animation-delay: 1.4s;
+        }
+
+        @keyframes glow-pulse {
+            0% {
+                opacity: 0.8;
+                transform: scale(0.9);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.2);
+            }
+        }
+
+        /* CSS Heart shape */
+        .heart-shape {
+            position: relative;
+            z-index: 2;
+            width: 180px;
+            height: 165px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+            filter: drop-shadow(0 0 30px rgba(220, 30, 80, 0.7)) drop-shadow(0 0 60px rgba(220, 30, 80, 0.4));
+            animation: heartbeat 1.8s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            14% {
+                transform: scale(1.07);
+            }
+
+            28% {
+                transform: scale(1);
+            }
+
+            42% {
+                transform: scale(1.05);
+            }
+
+            70% {
+                transform: scale(1);
+            }
+        }
+
+        .heart-shape:active {
+            transform: scale(0.91);
+            filter: drop-shadow(0 0 15px rgba(220, 30, 80, 0.5));
+        }
+
+        /* SVG heart */
+        .heart-shape svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .heart-text {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            margin-top: -10px;
+        }
+
+        .heart-text .line1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            letter-spacing: 1px;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .heart-text .line2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .heart-text .heart-icon {
+            font-size: 1rem;
+            margin-top: 2px;
+        }
+
+        /* Sending state */
+        .heart-sending .heart-shape {
+            animation: heart-send 0.35s ease 3 !important;
+        }
+
+        @keyframes heart-send {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Arabic description box */
+        .arabic-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 100, 150, 0.2);
+            border-radius: 20px;
+            padding: 1.4rem 1.6rem;
+            width: 100%;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .arabic-card .arabic-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 0.6rem;
+        }
+
+        .arabic-card .arabic-text {
+            font-size: 1rem;
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        /* Status box */
+        .status {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 0.9rem 2rem;
+            min-width: 260px;
+            transition: all 0.4s ease;
+        }
+
+        .status .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.3rem;
+        }
+
+        .status .message {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .status.success {
+            border-color: rgba(255, 107, 157, 0.5);
+            background: rgba(255, 107, 157, 0.08);
+        }
+
+        .status.success .message {
+            color: #ff6b9d;
+        }
+
+        .status.error {
+            border-color: rgba(255, 80, 80, 0.4);
+            background: rgba(255, 80, 80, 0.06);
+        }
+
+        .status.error .message {
+            color: #ff7070;
+        }
+
+        .footer {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Floating hearts background -->
+    <div class="hearts-bg" id="heartsBg"></div>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>Always Here For You</h1>
+            <p class="tagline">My darling, I'm yours 24/7 — always and forever 💕</p>
+        </div>
+
+        <!-- Heart button -->
+        <div class="heart-btn-wrapper" id="heartWrapper" onclick="triggerAlarm()">
+            <div class="glow-ring"></div>
+            <div class="glow-ring"></div>
+            <div class="glow-ring"></div>
+            <div class="heart-shape" id="heartShape">
+                <!-- SVG heart -->
+                <svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="hg" cx="40%" cy="35%" r="60%">
+                            <stop offset="0%" stop-color="#ff6b9d" />
+                            <stop offset="50%" stop-color="#e8003c" />
+                            <stop offset="100%" stop-color="#8b0020" />
+                        </radialGradient>
+                    </defs>
+                    <path
+                        d="M50 85 C50 85 5 55 5 28 C5 12 17 2 30 2 C38 2 45 6 50 13 C55 6 62 2 70 2 C83 2 95 12 95 28 C95 55 50 85 50 85Z"
+                        fill="url(#hg)" stroke="rgba(255,100,130,0.3)" stroke-width="0.5" />
+                </svg>
+                <div class="heart-text">
+                    <span class="line1">I Love You</span>
+                    <span class="line2">Zuhair</span>
+                    <span class="heart-icon">💕</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arabic description -->
+        <div class="arabic-card">
+            <div class="arabic-name">ماها ❤️</div>
+            <div class="arabic-text">
+                أنتِ لا تزعجيني أبداً حبيبتي.<br>
+                انظري لهذا الزر كأنه زر تضغطين عليه
+                عندما تحبين زهير.<br>
+                إذا كنتِ تحبينني،
+                اضغطي عليه بقدر ما تحبينني 💕
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status" id="statusBox">
+            <div class="label">Status</div>
+            <div class="message" id="statusMsg">Ready to send your love 💌</div>
+        </div>
+
+        <div class="footer">Made with love, just for you ❤️</div>
+    </div>
+
+    <!-- Floating hearts generator -->
+    <script>
+        const bg = document.getElementById('heartsBg');
+        const emojis = ['❤️', '💕', '💗', '💓', '💖', '💝', '🌹'];
+        for (let i = 0; i < 18; i++) {
+            const h = document.createElement('div');
+            h.className = 'heart-float';
+            h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.fontSize = (0.8 + Math.random() * 1.4) + 'rem';
+            h.style.animationDuration = (6 + Math.random() * 10) + 's';
+            h.style.animationDelay = (Math.random() * 10) + 's';
+            bg.appendChild(h);
+        }
+    </script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqfz2Fr_v6udQyWxoJOV8TR0-_DYxJq04",
+            authDomain: "sos-alarm-2c609.firebaseapp.com",
+            databaseURL: "https://sos-alarm-2c609-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "sos-alarm-2c609",
+            storageBucket: "sos-alarm-2c609.firebasestorage.app",
+            messagingSenderId: "610267106205",
+            appId: "1:610267106205:web:354ad4a05d7a352c7efd74"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let cooldown = false;
+
+        // Burst hearts on click
+        function burstHearts() {
+            const wrapper = document.getElementById('heartWrapper');
+            const rect = wrapper.getBoundingClientRect();
+            for (let i = 0; i < 10; i++) {
+                const h = document.createElement('div');
+                h.textContent = ['❤️', '💕', '💗'][Math.floor(Math.random() * 3)];
+                h.style.cssText = `
+        position:fixed;
+        left:${rect.left + rect.width / 2}px;
+        top:${rect.top + rect.height / 2}px;
+        font-size:${1.2 + Math.random()}rem;
+        pointer-events:none;
+        z-index:999;
+        animation: burst${i} 1.2s ease forwards;
+      `;
+                const angle = (Math.random() * 360) * Math.PI / 180;
+                const dist = 60 + Math.random() * 100;
+                const tx = Math.cos(angle) * dist;
+                const ty = Math.sin(angle) * dist;
+                const styleEl = document.createElement('style');
+                styleEl.textContent = `@keyframes burst${i} { 0%{opacity:1;transform:translate(0,0) scale(0.5)} 100%{opacity:0;transform:translate(${tx}px,${ty}px) scale(1.3)} }`;
+                document.head.appendChild(styleEl);
+                document.body.appendChild(h);
+                setTimeout(() => { h.remove(); styleEl.remove(); }, 1300);
+            }
+        }
+
+        window.triggerAlarm = async function () {
+            if (cooldown) return;
+            cooldown = true;
+
+            const wrapper = document.getElementById('heartWrapper');
+            const statusBox = document.getElementById('statusBox');
+            const statusMsg = document.getElementById('statusMsg');
+
+            wrapper.classList.add('heart-sending');
+            burstHearts();
+            statusBox.className = 'status';
+            statusMsg.textContent = 'Sending your love... 💌';
+
+            try {
+                await set(ref(db, 'alarm'), {
+                    active: true,
+                    timestamp: Date.now(),
+                    message: "I Love You Zuhair 💕"
+                });
+
+                statusBox.className = 'status success';
+                statusMsg.textContent = '💕 Your love was sent to Zuhair!';
+
+                setTimeout(() => {
+                    wrapper.classList.remove('heart-sending');
+                    statusBox.className = 'status';
+                    statusMsg.textContent = 'Ready to send your love 💌';
+                    cooldown = false;
+                }, 5000);
+
+            } catch (err) {
+                statusBox.className = 'status error';
+                statusMsg.textContent = '❌ Something went wrong, try again.';
+                wrapper.classList.remove('heart-sending');
+                cooldown = false;
+            }
+        };
+    </script>
+</body>
+
+</html>

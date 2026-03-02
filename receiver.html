@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Noodalarm Ontvanger</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#cc0000" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --red: #cc0000;
+            --red-light: #ff4444;
+            --green: #22c55e;
+            --bg: #0a0a0f;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+
+        /* ALARM ACTIVE state */
+        body.alarm-active {
+            animation: flash-bg 0.5s ease infinite alternate;
+        }
+
+        @keyframes flash-bg {
+            from {
+                background: #1a0000;
+            }
+
+            to {
+                background: #3a0000;
+            }
+        }
+
+        .container {
+            z-index: 1;
+            padding: 2rem 1.5rem;
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            text-align: center;
+        }
+
+        /* Status indicator (top) */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.4s;
+        }
+
+        .status-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #555;
+            transition: background 0.3s;
+        }
+
+        .status-indicator.listening .dot {
+            background: var(--green);
+            animation: dot-pulse 2s ease infinite;
+        }
+
+        .status-indicator.listening {
+            border-color: rgba(34, 197, 94, 0.3);
+            color: var(--green);
+        }
+
+        .status-indicator.alarm .dot {
+            background: var(--red-light);
+            animation: dot-pulse 0.4s ease infinite;
+        }
+
+        .status-indicator.alarm {
+            border-color: rgba(255, 68, 68, 0.5);
+            color: var(--red-light);
+        }
+
+        @keyframes dot-pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.8);
+            }
+        }
+
+        /* Central display */
+        .alarm-display {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .alarm-display .outer-ring {
+            position: absolute;
+            inset: -30px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            transition: border-color 0.3s;
+        }
+
+        .alarm-active .alarm-display .outer-ring {
+            border-color: rgba(255, 68, 68, 0.3);
+            animation: ring-spin 3s linear infinite;
+        }
+
+        @keyframes ring-spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .alarm-icon {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            position: relative;
+            transition: all 0.5s;
+        }
+
+        .alarm-icon .icon-emoji {
+            font-size: 4rem;
+            line-height: 1;
+        }
+
+        .alarm-icon .icon-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .alarm-active .alarm-icon {
+            background: radial-gradient(circle at 35% 35%, rgba(220, 0, 0, 0.3), rgba(100, 0, 0, 0.2));
+            border-color: rgba(255, 68, 68, 0.4);
+            box-shadow: 0 0 60px rgba(220, 30, 30, 0.5), 0 0 120px rgba(220, 30, 30, 0.2);
+            animation: alarm-pulse 0.5s ease infinite alternate;
+        }
+
+        @keyframes alarm-pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.04);
+            }
+        }
+
+        /* Info card */
+        .info-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.5rem;
+            width: 100%;
+            transition: all 0.4s;
+        }
+
+        .info-card.alarm-state {
+            background: rgba(220, 30, 30, 0.1);
+            border-color: rgba(255, 68, 68, 0.4);
+        }
+
+        .info-card .title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            margin-bottom: 0.4rem;
+            transition: color 0.3s;
+        }
+
+        .info-card.alarm-state .title {
+            color: #ff4444;
+        }
+
+        .info-card .subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .info-card.alarm-state .subtitle {
+            color: rgba(255, 150, 150, 0.7);
+        }
+
+        /* Stop button */
+        .stop-btn {
+            display: none;
+            padding: 0.9rem 2.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stop-btn:active {
+            transform: scale(0.96);
+        }
+
+        .alarm-active .stop-btn {
+            display: block;
+        }
+
+        /* Config warning */
+        .config-warning {
+            background: rgba(255, 160, 0, 0.1);
+            border: 1px solid rgba(255, 160, 0, 0.4);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            font-size: 0.82rem;
+            color: #ffa500;
+            width: 100%;
+            text-align: left;
+            display: none;
+        }
+
+        .config-warning.visible {
+            display: block;
+        }
+
+        .config-warning strong {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        /* Install banner */
+        .install-banner {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 0.9rem 1.2rem;
+            width: 100%;
+            font-size: 0.82rem;
+            color: rgba(180, 180, 255, 0.9);
+            display: none;
+        }
+
+        .install-banner.visible {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .install-banner button {
+            margin-left: auto;
+            padding: 0.4rem 1rem;
+            background: rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            border-radius: 999px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .footer {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+
+<body id="body">
+
+    <div class="container">
+
+        <div class="status-indicator listening" id="statusIndicator">
+            <div class="dot"></div>
+            <span id="statusText">Luistert naar alarm...</span>
+        </div>
+
+        <div class="config-warning" id="configWarning">
+            <strong>⚠️ Firebase niet geconfigureerd</strong>
+            Vervang de Firebase config in dit bestand. Zie README.md voor stap-voor-stap instructies.
+        </div>
+
+        <div class="alarm-display">
+            <div class="outer-ring"></div>
+            <div class="alarm-icon" id="alarmIcon">
+                <div class="icon-emoji" id="alarmEmoji">🔔</div>
+                <div class="icon-label" id="alarmLabel">Gereed</div>
+            </div>
+        </div>
+
+        <div class="info-card" id="infoCard">
+            <div class="title" id="infoTitle">Wachten op alarm</div>
+            <div class="subtitle" id="infoSubtitle">Je ontvangt direct een melding wanneer iemand op de noodknop drukt
+            </div>
+        </div>
+
+        <button class="stop-btn" id="stopBtn" onclick="stopAlarm()">⏹ Alarm stoppen</button>
+
+        <div class="install-banner" id="installBanner">
+            📲 Installeer dit als app op je telefoon
+            <button id="installBtn">Installeer</button>
+        </div>
+
+        <div class="footer">Noodalarm systeem — houd het volume van je telefoon hoog!</div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // ============================================================
+        // ⚠️  VERVANG HIERONDER MET JOUW FIREBASE CONFIGURATIE  ⚠️
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqfz2Fr_v6udQyWxoJOV8TR0-_DYxJq04",
+            authDomain: "sos-alarm-2c609.firebaseapp.com",
+            databaseURL: "https://sos-alarm-2c609-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "sos-alarm-2c609",
+            storageBucket: "sos-alarm-2c609.firebasestorage.app",
+            messagingSenderId: "610267106205",
+            appId: "1:610267106205:web:354ad4a05d7a352c7efd74"
+        };
+        // ============================================================
+
+        const isConfigured = !firebaseConfig.apiKey.includes("JOUW");
+
+        if (!isConfigured) {
+            document.getElementById('configWarning').classList.add('visible');
+            document.getElementById('statusText').textContent = 'Firebase niet ingesteld';
+            document.getElementById('statusIndicator').className = 'status-indicator';
+        }
+
+        // ── Service Worker registreren ──
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(console.warn);
+        }
+
+        // ── PWA Install prompt ──
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = document.getElementById('installBanner');
+            banner.classList.add('visible');
+            document.getElementById('installBtn').addEventListener('click', async () => {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') banner.classList.remove('visible');
+                deferredPrompt = null;
+            });
+        });
+
+        // ── Wake Lock: houd scherm wakker tijdens alarm ──
+        let wakeLock = null;
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (e) { console.warn('Wake lock niet beschikbaar', e); }
+        }
+        function releaseWakeLock() {
+            if (wakeLock) { wakeLock.release(); wakeLock = null; }
+        }
+
+        // ── Web Audio alarm geluid (SOS patroon) ──
+        let audioCtx = null;
+        let alarmInterval = null;
+        let isPlaying = false;
+
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+
+        function playBeep(ctx, freq, startTime, duration, volume = 1.0) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, startTime);
+            gain.gain.setValueAtTime(volume, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration - 0.01);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function playSOS() {
+            const ctx = getAudioCtx();
+            const now = ctx.currentTime;
+            const dot = 0.15;  // korte piep
+            const dash = 0.45; // lange piep
+            const gap = 0.08;  // pauze
+            const vol = 1.0;
+            const freq = 880;
+            let t = now;
+
+            // S = . . .
+            for (let i = 0; i < 3; i++) { playBeep(ctx, freq, t, dot, vol); t += dot + gap; }
+            t += gap * 2;
+            // O = - - -
+            for (let i = 0; i < 3; i++) { playBeep(ctx, freq, t, dash, vol); t += dash + gap; }
+            t += gap * 2;
+            // S = . . .
+            for (let i = 0; i < 3; i++) { playBeep(ctx, freq, t, dot, vol); t += dot + gap; }
+
+            return t - now + 0.5; // totale duur
+        }
+
+        function startAlarmSound() {
+            if (isPlaying) return;
+            isPlaying = true;
+            const soundDuration = playSOS();
+            alarmInterval = setInterval(() => { if (isPlaying) playSOS(); }, (soundDuration + 0.5) * 1000);
+        }
+
+        function stopAlarmSound() {
+            isPlaying = false;
+            clearInterval(alarmInterval);
+            alarmInterval = null;
+        }
+
+        // ── UI state ──
+        const body = document.getElementById('body');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const alarmEmoji = document.getElementById('alarmEmoji');
+        const alarmLabel = document.getElementById('alarmLabel');
+        const infoCard = document.getElementById('infoCard');
+        const infoTitle = document.getElementById('infoTitle');
+        const infoSubtitle = document.getElementById('infoSubtitle');
+
+        function setAlarmState(active, timestamp) {
+            if (active) {
+                body.classList.add('alarm-active');
+                statusIndicator.className = 'status-indicator alarm';
+                statusText.textContent = '🚨 ALARM ACTIEF!';
+                alarmEmoji.textContent = '🚨';
+                alarmLabel.textContent = 'ALARM!';
+                infoCard.classList.add('alarm-state');
+                infoTitle.textContent = '🆘 NOODALARM!';
+                const d = timestamp ? new Date(timestamp).toLocaleTimeString('nl-NL') : '';
+                infoSubtitle.textContent = d ? `Alarm ontvangen om ${d}` : 'Iemand heeft de noodknop ingedrukt!';
+                requestWakeLock();
+                startAlarmSound();
+            } else {
+                body.classList.remove('alarm-active');
+                statusIndicator.className = 'status-indicator listening';
+                statusText.textContent = 'Luistert naar alarm...';
+                alarmEmoji.textContent = '🔔';
+                alarmLabel.textContent = 'Gereed';
+                infoCard.classList.remove('alarm-state');
+                infoTitle.textContent = 'Wachten op alarm';
+                infoSubtitle.textContent = 'Je ontvangt direct een melding wanneer iemand op de noodknop drukt';
+                releaseWakeLock();
+                stopAlarmSound();
+            }
+        }
+
+        // ── Stop alarm knop ──
+        window.stopAlarm = async function () {
+            stopAlarmSound();
+            setAlarmState(false);
+            if (isConfigured) {
+                await set(ref(db, 'alarm'), { active: false, timestamp: Date.now() });
+            }
+        };
+
+        // ── Firebase luisteren ──
+        let db;
+        if (isConfigured) {
+            const app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+
+            onValue(ref(db, 'alarm'), (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.active === true) {
+                    setAlarmState(true, data.timestamp);
+                } else {
+                    setAlarmState(false);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
