@@ -317,6 +317,30 @@
             font-size: 0.7rem;
             color: rgba(255, 255, 255, 0.15);
         }
+
+        .notif-btn {
+            padding: 0.85rem 2rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
+            border: 1.5px solid rgba(34, 197, 94, 0.4);
+            border-radius: 999px;
+            color: #22c55e;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .notif-btn:active {
+            transform: scale(0.96);
+        }
+
+        .notif-btn.done {
+            border-color: rgba(34, 197, 94, 0.2);
+            color: rgba(34, 197, 94, 0.4);
+            cursor: default;
+        }
     </style>
 </head>
 
@@ -354,6 +378,11 @@
             📲 Installeer dit als app op je telefoon
             <button id="installBtn">Installeer</button>
         </div>
+
+        <!-- Knop om meldingen te activeren -->
+        <button class="notif-btn" id="notifBtn" onclick="enableNotifications()">
+            🔔 Activeer meldingen
+        </button>
 
         <div class="footer">Houd volume hoog — meldingen werken ook als app gesloten is 🔔</div>
     </div>
@@ -556,6 +585,25 @@
             }
         };
 
+        // ── Handmatig meldingen activeren (vereist klik in Chrome) ──
+        window.enableNotifications = async function () {
+            const btn = document.getElementById('notifBtn');
+            btn.textContent = '... Bezig ...';
+            if (isConfigured) {
+                await subscribeToPush(db);
+                const perm = Notification.permission;
+                if (perm === 'granted') {
+                    btn.textContent = '✅ Meldingen actief!';
+                    btn.classList.add('done');
+                    btn.onclick = null;
+                } else {
+                    btn.textContent = '❌ Toestemming geweigerd';
+                }
+            } else {
+                btn.textContent = '⚠️ Firebase niet ingesteld';
+            }
+        };
+
         // ── Firebase luisteren ──
         let db;
         if (isConfigured) {
@@ -571,8 +619,10 @@
                 }
             });
 
-            // ── Push subscription activeren (voor meldingen als app dicht is) ──
-            subscribeToPush(db);
+            // Auto-subscribe als toestemming al eerder gegeven was
+            if (Notification.permission === 'granted') {
+                subscribeToPush(db);
+            }
         }
     </script>
 </body>
